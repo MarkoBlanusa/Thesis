@@ -1,0 +1,61 @@
+Cumulative Return: -0.6160
+Annualized Return: 0.5860
+Annualized Volatility: 1.8157
+Annualized Downside Semi-Std: 1.1013
+Annualized Upside Semi-Std: 1.4439
+Sharpe Ratio: 0.3227
+Sortino Ratio: 0.4464
+Maximum Drawdown: -0.9574
+Lowest Point (% of Initial Capital): 0.0472
+VaR (99%): -0.3067
+CVaR (99%): -0.3801
+Calmar Ratio: 0.6120
+Upside Potential Ratio: 0.6756
+Omega Ratio: 1.0708
+Skewness: 3.1466
+Kurtosis: 41.9110
+AVERAGE COMPOUNDED RETURNS OVER 1 EPISODES : -0.8879475445715627
+STATS ON REWARDS OVER 1 EPISODES :
+
+TOTAL REWARDS :  -79.94533399302244
+MEAN REWARDS :  -0.21724275541582186
+STD REWARDS :  0.17423268194407382
+SKEWNESS REWARDS :  -1.3010220347169121
+KURTOSIS REWARDS :  5.93027168997242
+
+
+METRICS FINAL COMPOUNDED RETURN :  [-0.8879475445715627, -0.8879475445715627]
+TOTAL ACCUMULATED REWARD ONLY FROM LOGRETURNS :  0
+TOTAL REWARD BEFORE NORMALIZATION :  -0.2092768912326642
+REWARD END OF STEP :  0.04337148066160684
+Total reward on test data: -26.88650883529802
+Elapsed time: 15.1200 seconds
+C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\gymnasium\utils\passive_env_checker.py:364: UserWarning: WARN: No render fps was declared in the environment (env.metadata['render_fps'] is None or not defined), rendering may occur at inconsistent fps.
+  logger.warn(
+START DATE :  2024-05-19 00:00:00
+END DATE :  2025-05-20 00:00:00
+✓ realised weights saved to realized_weights.csv
+Tracking-Error (weights): 0.1113
+Rejected-trade ratio   : 19.81% (727 rejects / 3670 total)
+Implementation-Shortfall (mean |Δw| per step): 43.6408%
+Mean-Absolute-Deviation of weights:            4.3641%
+
+Cumulative |Δw| split by cause:
+Slippage                  108.8603
+Trade size                 51.2806
+Margin call                 0.0211
+none                        0.0000
+Trade_size                  0.0000
+Leverage limit              0.0000
+Insufficient collateral     0.0000
+Margin tier                 0.0000
+
+Percentage of cumulative |Δw| split by cause:
+Slippage                  67.97%
+Trade size                32.02%
+Margin call                0.01%
+none                       0.00%
+Trade_size                 0.00%
+Leverage limit             0.00%
+Insufficient collateral    0.00%
+Margin tier                0.00%

@@ -1,0 +1,440 @@
+{
+  "_AlgorithmConfig__prior_exploration_config": null,
+  "_disable_action_flattening": false,
+  "_disable_execution_plan_api": -1,
+  "_disable_initialize_loss_from_dummy_batch": false,
+  "_disable_preprocessor_api": false,
+  "_enable_new_api_stack": false,
+  "_env_to_module_connector": null,
+  "_fake_gpus": false,
+  "_is_atari": null,
+  "_learner_class": null,
+  "_learner_connector": null,
+  "_module_to_env_connector": null,
+  "_per_module_overrides": {},
+  "_rl_module_spec": null,
+  "_tf_policy_handles_more_than_one_loss": false,
+  "action_mask_key": "action_mask",
+  "action_space": null,
+  "actions_in_input_normalized": false,
+  "add_default_connectors_to_env_to_module_pipeline": true,
+  "add_default_connectors_to_learner_pipeline": true,
+  "add_default_connectors_to_module_to_env_pipeline": true,
+  "algorithm_config_overrides_per_module": {},
+  "always_attach_evaluation_results": false,
+  "auto_wrap_old_gym_envs": true,
+  "batch_mode": "complete_episodes",
+  "callbacks": "<class 'ray.rllib.algorithms.callbacks.DefaultCallbacks'>",
+  "checkpoint_trainable_policies_only": false,
+  "clip_actions": false,
+  "clip_param": 0.1,
+  "clip_rewards": null,
+  "compress_observations": false,
+  "count_steps_by": "env_steps",
+  "create_env_on_driver": false,
+  "custom_async_evaluation_function": null,
+  "custom_eval_function": null,
+  "custom_resources_per_worker": {},
+  "delay_between_worker_restarts_s": 60.0,
+  "disable_env_checking": false,
+  "eager_max_retraces": 20,
+  "eager_tracing": true,
+  "enable_async_evaluation": false,
+  "enable_connectors": true,
+  "enable_tf1_exec_eagerly": false,
+  "entropy_coeff": 0.01,
+  "entropy_coeff_schedule": [
+    [
+      0,
+      0.01
+    ],
+    [
+      1500000.0,
+      0.005
+    ],
+    [
+      3000000.0,
+      0.002
+    ]
+  ],
+  "env": "trade_env_ray_portfolio",
+  "env_config": {
+    "data_path": "C:\\Users\\marko\\Marko_documents\\Etudes\\Master_2\u00e8me\\2\u00e8me_semestre\\Master_thesis\\Deep_RL_PPO_LSTM\\train_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17",
+    "episode_length": 180,
+    "full_invest": true,
+    "initial_balance": 1000,
+    "input_length": 100,
+    "leverage": 5,
+    "limit_bounds": false,
+    "limit_fee": 0.0002,
+    "margin_mode": "cross",
+    "market_fee": 0.0005,
+    "max_risk": 0.02,
+    "min_profit": 0,
+    "min_risk": 0.001,
+    "mode": "train",
+    "ppo_mode": true,
+    "predict_leverage": false,
+    "raw_data_path": "C:\\Users\\marko\\Marko_documents\\Etudes\\Master_2\u00e8me\\2\u00e8me_semestre\\Master_thesis\\Deep_RL_PPO_LSTM\\train_raw_ohlcv_100_1d_NewVal2.npy",
+    "slippage_mean": 1e-06,
+    "slippage_std": 5e-05,
+    "states": {
+      "feature_welford": {
+        "balance": [
+          59126,
+          4884846.458438631,
+          3.508572043362854e+18
+        ],
+        "compounded_returns": [
+          59126,
+          1102.889602302212,
+          219964956898.95572
+        ],
+        "current_position_size": [
+          59126,
+          627398.8423950233,
+          1.661412206474419e+17
+        ],
+        "free_collateral": [
+          59126,
+          5005084.204757258,
+          3.5252345939796767e+18
+        ],
+        "last_log_ret": [
+          59126,
+          0.004657926038148982,
+          701.0292340710922
+        ],
+        "margin_usage_ratio": [
+          59126,
+          0.016044774761928705,
+          12.37541289414131
+        ],
+        "mm_reqs": [
+          59126,
+          8681.712853360443,
+          78132302617427.2
+        ],
+        "portfolio_cash_ratio": [
+          59126,
+          0.5526480517324566,
+          8076.468752905059
+        ],
+        "position_value": [
+          59126,
+          125570.31283582203,
+          6647109339085220.0
+        ],
+        "realized_pnl": [
+          59126,
+          6486.208860969444,
+          1130789016058506.2
+        ],
+        "rolling_pnl_sigma": [
+          59126,
+          0.05629139942649758,
+          228.576230120325
+        ],
+        "sortino_ratio": [
+          59126,
+          0.6307175421951959,
+          779984.7989783686
+        ],
+        "unrealized_pnl": [
+          59126,
+          3282.7487290917406,
+          352346763834965.7
+        ],
+        "unrealized_pnl_0": [
+          59126,
+          5.634765647392175,
+          315959048134.86584
+        ],
+        "unrealized_pnl_1": [
+          59126,
+          59.57302080230311,
+          1196366797956.3975
+        ],
+        "unrealized_pnl_2": [
+          59126,
+          474.43275720572956,
+          35918933647014.81
+        ],
+        "unrealized_pnl_3": [
+          59126,
+          5136.68120355366,
+          861931154793043.4
+        ],
+        "unrealized_pnl_4": [
+          59126,
+          18.69256301763037,
+          928963766600.2971
+        ],
+        "unrealized_pnl_5": [
+          59126,
+          1350.7423606638163,
+          84167489058689.75
+        ],
+        "unrealized_pnl_6": [
+          59126,
+          85.57097165500541,
+          2650233149462.079
+        ],
+        "unrealized_pnl_7": [
+          59126,
+          41.157051510062836,
+          379687601169.56384
+        ],
+        "unrealized_pnl_8": [
+          59126,
+          37.85620726670678,
+          375725239099.8302
+        ],
+        "unrealized_pnl_9": [
+          59126,
+          391.08132178802737,
+          15984310583120.758
+        ]
+      },
+      "pcr_max_ew": 1.0000000000000946,
+      "pcr_min_ew": 0.9948158059649153,
+      "r_count": 59125.000100000005,
+      "r_mean": -0.09088853374969143,
+      "r_var": 1512.012722267249,
+      "tanh_k": 2.0
+    },
+    "total_episodes": 1
+  },
+  "env_runner_cls": null,
+  "env_task_fn": null,
+  "episode_lookback_horizon": 1,
+  "evaluation_config": {
+    "env_config": {
+      "data_path": "C:\\Users\\marko\\Marko_documents\\Etudes\\Master_2\u00e8me\\2\u00e8me_semestre\\Master_thesis\\Deep_RL_PPO_LSTM\\val_portfolio_data_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17",
+      "limit_bounds": false,
+      "mode": "val",
+      "raw_data_path": "C:\\Users\\marko\\Marko_documents\\Etudes\\Master_2\u00e8me\\2\u00e8me_semestre\\Master_thesis\\Deep_RL_PPO_LSTM\\val_raw_ohlcv_100_1d_NewVal2.npy"
+    },
+    "explore": false,
+    "num_gpus": 0
+  },
+  "evaluation_duration": 5,
+  "evaluation_duration_unit": "episodes",
+  "evaluation_interval": 10,
+  "evaluation_num_workers": 0,
+  "evaluation_parallel_to_training": false,
+  "evaluation_sample_timeout_s": 180,
+  "exploration_config": {
+    "type": "StochasticSampling"
+  },
+  "explore": true,
+  "export_native_model_files": false,
+  "extra_python_environs_for_driver": {},
+  "extra_python_environs_for_worker": {},
+  "fake_sampler": false,
+  "framework": "torch",
+  "gamma": 0.97,
+  "grad_clip": 0.5,
+  "grad_clip_by": "global_norm",
+  "ignore_worker_failures": false,
+  "in_evaluation": false,
+  "input": "sampler",
+  "input_config": {},
+  "keep_per_episode_custom_metrics": false,
+  "kl_coeff": 0.5,
+  "kl_target": 0.015,
+  "lambda": 0.9,
+  "local_gpu_idx": 0,
+  "local_tf_session_args": {
+    "inter_op_parallelism_threads": 8,
+    "intra_op_parallelism_threads": 8
+  },
+  "log_level": "WARN",
+  "log_sys_usage": true,
+  "logger_config": null,
+  "logger_creator": null,
+  "lr": 0.0001,
+  "lr_schedule": [
+    [
+      0,
+      0.0001
+    ],
+    [
+      5000000.0,
+      5e-05
+    ],
+    [
+      10000000.0,
+      2e-05
+    ],
+    [
+      15000000.0,
+      1e-05
+    ]
+  ],
+  "max_num_worker_restarts": 1000,
+  "max_requests_in_flight_per_sampler_worker": 2,
+  "metrics_episode_collection_timeout_s": 60.0,
+  "metrics_num_episodes_for_smoothing": 100,
+  "min_sample_timesteps_per_iteration": 0,
+  "min_time_s_per_iteration": null,
+  "min_train_timesteps_per_iteration": 0,
+  "mini_batch_size_per_learner": null,
+  "model": {
+    "_disable_action_flattening": true,
+    "_disable_preprocessor_api": false,
+    "_time_major": false,
+    "_use_default_native_models": -1,
+    "always_check_shapes": false,
+    "attention_dim": 64,
+    "attention_head_dim": 32,
+    "attention_init_gru_gate_bias": 2.0,
+    "attention_memory_inference": 50,
+    "attention_memory_training": 50,
+    "attention_num_heads": 1,
+    "attention_num_transformer_units": 1,
+    "attention_position_wise_mlp_dim": 32,
+    "attention_use_n_prev_actions": 0,
+    "attention_use_n_prev_rewards": 0,
+    "conv_activation": "relu",
+    "conv_bias_initializer": null,
+    "conv_bias_initializer_config": null,
+    "conv_filters": null,
+    "conv_kernel_initializer": null,
+    "conv_kernel_initializer_config": null,
+    "conv_transpose_bias_initializer": null,
+    "conv_transpose_bias_initializer_config": null,
+    "conv_transpose_kernel_initializer": null,
+    "conv_transpose_kernel_initializer_config": null,
+    "custom_action_dist": null,
+    "custom_model": null,
+    "custom_model_config": {},
+    "custom_preprocessor": null,
+    "dim": 84,
+    "encoder_latent_dim": null,
+    "fcnet_activation": "relu",
+    "fcnet_bias_initializer": null,
+    "fcnet_bias_initializer_config": null,
+    "fcnet_hiddens": [
+      128,
+      128
+    ],
+    "fcnet_weights_initializer": null,
+    "fcnet_weights_initializer_config": null,
+    "framestack": true,
+    "free_log_std": false,
+    "grayscale": false,
+    "lstm_bias_initializer": null,
+    "lstm_bias_initializer_config": null,
+    "lstm_cell_size": 128,
+    "lstm_use_prev_action": false,
+    "lstm_use_prev_action_reward": true,
+    "lstm_use_prev_reward": false,
+    "lstm_weights_initializer": null,
+    "lstm_weights_initializer_config": null,
+    "max_seq_len": 100,
+    "no_final_linear": false,
+    "post_fcnet_activation": "linear",
+    "post_fcnet_bias_initializer": null,
+    "post_fcnet_bias_initializer_config": null,
+    "post_fcnet_hiddens": [],
+    "post_fcnet_weights_initializer": null,
+    "post_fcnet_weights_initializer_config": null,
+    "use_attention": false,
+    "use_lstm": true,
+    "vf_share_layers": false,
+    "zero_mean": true
+  },
+  "normalize_actions": true,
+  "num_consecutive_worker_failures_tolerance": 100,
+  "num_cpus_for_driver": 1,
+  "num_cpus_per_learner_worker": 1,
+  "num_cpus_per_worker": 1,
+  "num_envs_per_worker": 1,
+  "num_gpus": 1,
+  "num_gpus_per_learner_worker": 0,
+  "num_gpus_per_worker": 0,
+  "num_learner_workers": 0,
+  "num_sgd_iter": 10,
+  "num_workers": 14,
+  "observation_filter": "NoFilter",
+  "observation_fn": null,
+  "observation_space": null,
+  "off_policy_estimation_methods": {},
+  "offline_sampling": false,
+  "ope_split_batch_by_episode": true,
+  "optimizer": {},
+  "output": null,
+  "output_compress_columns": [
+    "obs",
+    "new_obs"
+  ],
+  "output_config": {},
+  "output_max_file_size": 67108864,
+  "placement_strategy": "PACK",
+  "policies": {
+    "default_policy": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "policies_to_train": null,
+  "policy_map_cache": -1,
+  "policy_map_capacity": 100,
+  "policy_mapping_fn": "<function AlgorithmConfig.DEFAULT_POLICY_MAPPING_FN at 0x0000021CD57B75B0>",
+  "policy_states_are_swappable": false,
+  "postprocess_inputs": false,
+  "preprocessor_pref": "deepmind",
+  "recreate_failed_workers": false,
+  "remote_env_batch_wait_ms": 0,
+  "remote_worker_envs": false,
+  "render_env": false,
+  "replay_sequence_length": null,
+  "restart_failed_sub_environments": false,
+  "rollout_fragment_length": 120,
+  "sample_async": -1,
+  "sample_collector": "<class 'ray.rllib.evaluation.collectors.simple_list_collector.SimpleListCollector'>",
+  "sampler_perf_stats_ema_coef": null,
+  "seed": null,
+  "sgd_minibatch_size": 280,
+  "shuffle_buffer_size": 0,
+  "shuffle_sequences": false,
+  "simple_optimizer": -1,
+  "sync_filters_on_rollout_workers_timeout_s": 60.0,
+  "synchronize_filters": -1,
+  "tf_session_args": {
+    "allow_soft_placement": true,
+    "device_count": {
+      "CPU": 1
+    },
+    "gpu_options": {
+      "allow_growth": true
+    },
+    "inter_op_parallelism_threads": 2,
+    "intra_op_parallelism_threads": 2,
+    "log_device_placement": false
+  },
+  "torch_compile_learner": false,
+  "torch_compile_learner_dynamo_backend": "inductor",
+  "torch_compile_learner_dynamo_mode": null,
+  "torch_compile_learner_what_to_compile": "forward_train",
+  "torch_compile_worker": false,
+  "torch_compile_worker_dynamo_backend": "onnxrt",
+  "torch_compile_worker_dynamo_mode": null,
+  "train_batch_size": 1680,
+  "train_batch_size_per_learner": null,
+  "update_worker_filter_stats": true,
+  "use_critic": true,
+  "use_gae": true,
+  "use_kl_loss": true,
+  "use_worker_filter_stats": true,
+  "validate_workers_after_construction": true,
+  "vf_clip_param": 0.5,
+  "vf_loss_coeff": 0.3,
+  "vf_share_layers": -1,
+  "worker_cls": -1,
+  "worker_health_probe_timeout_s": 60,
+  "worker_restore_timeout_s": 1800
+}

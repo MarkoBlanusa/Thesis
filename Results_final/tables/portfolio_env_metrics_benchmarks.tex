@@ -1,0 +1,23 @@
+\begin{tabular}{lrrrr}
+\toprule
+ & Tracking-Error
+(weights) & Rejected-trade
+ratio & Implementation-Shortfall
+(mean
+|Δw|
+per
+step) & Mean-Absolute-Deviation
+of
+weights \\
+Model &  &  &  &  \\
+\midrule
+EW & 0.0252 & 63.32% (2324 rejects / 3670 total) & 18.3727% & 1.8373% \\
+VW & 0.0364 & 85.69% (3145 rejects / 3670 total) & 13.9470% & 1.3947% \\
+cc_ERC & 0.0160 & 46.62% (1711 rejects / 3670 total) & 12.3050% & 1.2305% \\
+cc_GMV & 0.0185 & 25.64% (941 rejects / 3670 total) & 9.9756% & 0.9976% \\
+cc_MDP & 0.0212 & 41.06% (1507 rejects / 3670 total) & 12.4589% & 1.2459% \\
+raw_ERC & 0.0160 & 43.38% (1592 rejects / 3670 total) & 12.1408% & 1.2141% \\
+raw_GMV & 0.0207 & 19.54% (717 rejects / 3670 total) & 11.2910% & 1.1291% \\
+raw_MDP & 0.0208 & 20.27% (744 rejects / 3670 total) & 12.4163% & 1.2416% \\
+\bottomrule
+\end{tabular}

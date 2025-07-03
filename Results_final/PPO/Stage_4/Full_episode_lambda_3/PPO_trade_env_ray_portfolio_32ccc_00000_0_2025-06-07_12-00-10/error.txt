@@ -1,0 +1,37 @@
+Failure # 1 (occurred at 2025-06-07_13-29-48)
+[36mray::PPO.train()[39m (pid=103892, ip=127.0.0.1, actor_id=cac14036c50ebfb67487d29301000000, repr=PPO)
+  File "python\ray\_raylet.pyx", line 1889, in ray._raylet.execute_task
+  File "python\ray\_raylet.pyx", line 1830, in ray._raylet.execute_task.function_executor
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\_private\function_manager.py", line 724, in actor_method_executor
+    return method(__ray_actor, *args, **kwargs)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\util\tracing\tracing_helper.py", line 467, in _resume_span
+    return method(self, *_args, **_kwargs)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\tune\trainable\trainable.py", line 334, in train
+    raise skipped from exception_cause(skipped)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\tune\trainable\trainable.py", line 331, in train
+    result = self.step()
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\util\tracing\tracing_helper.py", line 467, in _resume_span
+    return method(self, *_args, **_kwargs)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\algorithms\algorithm.py", line 849, in step
+    results, train_iter_ctx = self._run_one_training_iteration()
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\util\tracing\tracing_helper.py", line 467, in _resume_span
+    return method(self, *_args, **_kwargs)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\algorithms\algorithm.py", line 3194, in _run_one_training_iteration
+    results = self.training_step()
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\util\tracing\tracing_helper.py", line 467, in _resume_span
+    return method(self, *_args, **_kwargs)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\algorithms\ppo\ppo.py", line 410, in training_step
+    return self._training_step_old_and_hybrid_api_stacks()
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\util\tracing\tracing_helper.py", line 467, in _resume_span
+    return method(self, *_args, **_kwargs)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\algorithms\ppo\ppo.py", line 520, in _training_step_old_and_hybrid_api_stacks
+    train_results = multi_gpu_train_one_step(self, train_batch)
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\execution\train_ops.py", line 152, in multi_gpu_train_one_step
+    num_loaded_samples[policy_id] = local_worker.policy_map[
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\policy\torch_policy_v2.py", line 778, in load_batch_into_buffer
+    pad_batch_to_sequences_of_same_size(
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\policy\rnn_sequencing.py", line 155, in pad_batch_to_sequences_of_same_size
+    feature_sequences, initial_states, seq_lens = chop_into_sequences(
+  File "C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\ray\rllib\policy\rnn_sequencing.py", line 396, in chop_into_sequences
+    f_pad = np.zeros((length,) + np.shape(f)[1:], dtype=f.dtype)
+numpy.core._exceptions._ArrayMemoryError: Unable to allocate 1.10 GiB for an array with shape (15000, 100, 196) and data type float32

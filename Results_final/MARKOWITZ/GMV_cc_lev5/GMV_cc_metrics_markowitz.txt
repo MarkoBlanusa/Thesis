@@ -1,0 +1,53 @@
+Cumulative Return: 0.2113
+Annualized Return: 0.3055
+Annualized Volatility: 0.4839
+Annualized Downside Semi-Std: 0.3133
+Annualized Upside Semi-Std: 0.3692
+Sharpe Ratio: 0.6312
+Sortino Ratio: 0.9310
+Maximum Drawdown: -0.3577
+Lowest Point (% of Initial Capital): 0.8646
+VaR (99%): -0.0648
+CVaR (99%): -0.0861
+Calmar Ratio: 0.8541
+Upside Potential Ratio: 0.9351
+Omega Ratio: 1.1069
+Skewness: 1.4028
+Kurtosis: 14.8471
+AVERAGE COMPOUNDED RETURNS OVER 1 EPISODES : 0.07922927162375748
+STATS ON REWARDS OVER 1 EPISODES : 
+
+TOTAL REWARDS :  -1.3831183386043393
+MEAN REWARDS :  -0.003758473746207444
+STD REWARDS :  0.02484881314454782
+SKEWNESS REWARDS :  1.4185155856778213
+KURTOSIS REWARDS :  15.577105114378934
+
+
+METRICS FINAL COMPOUNDED RETURN :  [0.07922927162375748, 0.07922927162375748]
+TOTAL ACCUMULATED REWARD ONLY FROM LOGRETURNS :  0
+TOTAL REWARD BEFORE NORMALIZATION :  -0.01480338926030362
+REWARD END OF STEP :  -0.03825369685368996
+Total reward on test data: -0.14774183031265278
+
+
+Tracking-Error (weights): 0.0349
+Rejected-trade ratio   : 77.52% (2845 rejects / 3670 total)
+Implementation-Shortfall (mean |Δw| per step): 20.2572%
+Mean-Absolute-Deviation of weights:            2.0257%
+
+Cumulative |Δw| split by cause:
+Trade size                52.1449
+Slippage                  22.1991
+Trade_size                 0.0000
+Leverage limit             0.0000
+Insufficient collateral    0.0000
+Margin tier                0.0000
+
+Percentage of cumulative |Δw| split by cause:
+Trade size                70.14%
+Slippage                  29.86%
+Trade_size                 0.00%
+Leverage limit             0.00%
+Insufficient collateral    0.00%
+Margin tier                0.00%

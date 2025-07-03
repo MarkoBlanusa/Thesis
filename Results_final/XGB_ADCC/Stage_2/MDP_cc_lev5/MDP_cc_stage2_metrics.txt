@@ -1,0 +1,56 @@
+Cumulative Return: 0.6272
+Annualized Return: 0.8782
+Annualized Volatility: 0.9913
+Annualized Downside Semi-Std: 0.4538
+Annualized Upside Semi-Std: 0.8826
+Sharpe Ratio: 0.8859
+Sortino Ratio: 1.7225
+Maximum Drawdown: -0.5753
+Lowest Point (% of Initial Capital): 0.7915
+VaR (99%): -0.0826
+CVaR (99%): -0.1438
+Calmar Ratio: 1.5264
+Upside Potential Ratio: 0.8997
+Omega Ratio: 1.2310
+Skewness: 9.1972
+Kurtosis: 141.5333
+AVERAGE COMPOUNDED RETURNS OVER 1 EPISODES : 0.1784624820455336
+STATS ON REWARDS OVER 1 EPISODES : 
+
+TOTAL REWARDS :  0.3377148190207835
+MEAN REWARDS :  0.0009177033125564769
+STD REWARDS :  0.04422279347197845
+SKEWNESS REWARDS :  5.427691275707697
+KURTOSIS REWARDS :  82.09139796218156
+
+
+METRICS FINAL COMPOUNDED RETURN :  [0.1784624820455336, 0.1784624820455336]
+c:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\numpy\core\fromnumeric.py:3504: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+c:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\numpy\core\_methods.py:129: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+TOTAL ACCUMULATED REWARD ONLY FROM LOGRETURNS :  0
+TOTAL REWARD BEFORE NORMALIZATION :  0.0012796790815981212
+REWARD END OF STEP :  0.0010590287050881422
+Total reward on test data: -0.33426715776738064
+
+Tracking-Error (weights): 0.0207
+Rejected-trade ratio   : 41.23% (1513 rejects / 3670 total)
+Implementation-Shortfall (mean |Δw| per step): 10.4725%
+Mean-Absolute-Deviation of weights:            1.0473%
+
+Cumulative |Δw| split by cause:
+Slippage                  20.9681
+Trade size                17.4660
+Trade_size                 0.0000
+Leverage limit             0.0000
+Insufficient collateral    0.0000
+Margin tier                0.0000
+
+Percentage of cumulative |Δw| split by cause:
+Slippage                  54.56%
+Trade size                45.44%
+Trade_size                 0.00%
+Leverage limit             0.00%
+Insufficient collateral    0.00%
+Margin tier                0.00%

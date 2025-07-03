@@ -1,0 +1,43 @@
+\begin{tabular}{llrrrr}
+\toprule
+ &  & Tracking-Error
+(weights) & Rejected-trade
+ratio & Implementation-Shortfall
+(mean
+|Δw|
+per
+step) & Mean-Absolute-Deviation
+of
+weights \\
+Stage & Model &  &  &  &  \\
+\midrule
+\multirow[t]{6}{*}{stage1} & cc_ERC & 0.0241 & 64.17% (2355 rejects / 3670 total) & 17.6720% & 1.7672% \\
+ & cc_GMV & 0.0218 & 58.37% (2142 rejects / 3670 total) & 15.1682% & 1.5168% \\
+ & cc_MDP & 0.0221 & 59.05% (2167 rejects / 3670 total) & 16.1936% & 1.6194% \\
+ & raw_ERC & 0.0245 & 64.09% (2352 rejects / 3670 total) & 18.0488% & 1.8049% \\
+ & raw_GMV & 0.0218 & 59.02% (2166 rejects / 3670 total) & 14.8893% & 1.4889% \\
+ & raw_MDP & 0.0235 & 65.01% (2386 rejects / 3670 total) & 17.1768% & 1.7177% \\
+\cline{1-6}
+\multirow[t]{6}{*}{stage2} & cc_ERC & 0.0227 & 59.59% (2187 rejects / 3670 total) & 16.6801% & 1.6680% \\
+ & cc_GMV & 0.0234 & 43.41% (1593 rejects / 3670 total) & 14.6341% & 1.4634% \\
+ & cc_MDP & 0.0238 & 46.46% (1705 rejects / 3670 total) & 16.0458% & 1.6046% \\
+ & raw_ERC & 0.0242 & 58.04% (2130 rejects / 3670 total) & 17.6251% & 1.7625% \\
+ & raw_GMV & 0.0242 & 56.84% (2086 rejects / 3670 total) & 15.4051% & 1.5405% \\
+ & raw_MDP & 0.0241 & 49.35% (1811 rejects / 3670 total) & 16.1977% & 1.6198% \\
+\cline{1-6}
+\multirow[t]{6}{*}{stage3} & cc_ERC & 0.0235 & 61.23% (2247 rejects / 3670 total) & 17.5774% & 1.7577% \\
+ & cc_GMV & 0.0242 & 44.11% (1619 rejects / 3670 total) & 15.7012% & 1.5701% \\
+ & cc_MDP & 0.0225 & 55.91% (2052 rejects / 3670 total) & 15.9567% & 1.5957% \\
+ & raw_ERC & 0.0236 & 60.98% (2238 rejects / 3670 total) & 17.4770% & 1.7477% \\
+ & raw_GMV & 0.0229 & 58.26% (2138 rejects / 3670 total) & 14.9299% & 1.4930% \\
+ & raw_MDP & 0.0237 & 54.90% (2015 rejects / 3670 total) & 16.8672% & 1.6867% \\
+\cline{1-6}
+\multirow[t]{6}{*}{stage4} & cc_ERC & 0.0222 & 61.72% (2265 rejects / 3670 total) & 16.4850% & 1.6485% \\
+ & cc_GMV & 0.0246 & 47.96% (1760 rejects / 3670 total) & 15.6278% & 1.5628% \\
+ & cc_MDP & 0.0230 & 52.43% (1924 rejects / 3670 total) & 16.4808% & 1.6481% \\
+ & raw_ERC & 0.0235 & 57.22% (2100 rejects / 3670 total) & 17.1224% & 1.7122% \\
+ & raw_GMV & 0.0276 & 52.56% (1929 rejects / 3670 total) & 18.6066% & 1.8607% \\
+ & raw_MDP & 0.0242 & 55.56% (2039 rejects / 3670 total) & 17.4851% & 1.7485% \\
+\cline{1-6}
+\bottomrule
+\end{tabular}

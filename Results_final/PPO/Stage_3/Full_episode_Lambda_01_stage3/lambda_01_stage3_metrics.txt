@@ -1,0 +1,59 @@
+Cumulative Return: -0.2053
+Annualized Return: 0.4642
+Annualized Volatility: 1.2051
+Annualized Downside Semi-Std: 0.7598
+Annualized Upside Semi-Std: 0.9357
+Sharpe Ratio: 0.3852
+Sortino Ratio: 0.6692
+Maximum Drawdown: -0.6005
+Lowest Point (% of Initial Capital): 0.4691
+VaR (99%): -0.1466
+CVaR (99%): -0.1744
+Calmar Ratio: 0.7731
+Upside Potential Ratio: 1.2878
+Omega Ratio: 1.0591
+Skewness: 1.6598
+Kurtosis: 14.2980
+AVERAGE COMPOUNDED RETURNS OVER 1 EPISODES : -0.5929842004879146
+STATS ON REWARDS OVER 1 EPISODES :
+
+TOTAL REWARDS :  -0.6159987319498338
+MEAN REWARDS :  -0.0016739095976897656
+STD REWARDS :  0.0609353290650739
+SKEWNESS REWARDS :  0.6565748773119966
+KURTOSIS REWARDS :  10.129805687473564
+
+
+METRICS FINAL COMPOUNDED RETURN :  [-0.5929842004879146, -0.5929842004879146]
+TOTAL ACCUMULATED REWARD ONLY FROM LOGRETURNS :  0
+TOTAL REWARD BEFORE NORMALIZATION :  -0.010190796556752282
+REWARD END OF STEP :  -0.04965848334907193
+Total reward on test data: -7.854955792229501
+Elapsed time: 33.1811 seconds
+C:\Users\marko\anaconda3\envs\rllib-torch\lib\site-packages\gymnasium\utils\passive_env_checker.py:364: UserWarning: WARN: No render fps was declared in the environment (env.metadata['render_fps'] is None or not defined), rendering may occur at inconsistent fps.
+  logger.warn(
+START DATE :  2024-05-19 00:00:00
+END DATE :  2025-05-20 00:00:00
+✓ realised weights saved to realized_weights.csv
+Tracking-Error (weights): 0.1314
+Rejected-trade ratio   : 26.43% (970 rejects / 3670 total)
+Implementation-Shortfall (mean |Δw| per step): 30.4199%
+Mean-Absolute-Deviation of weights:            3.0420%
+
+Cumulative |Δw| split by cause:
+Slippage                  108.9037
+Trade size                  2.7372
+none                        0.0000
+Trade_size                  0.0000
+Leverage limit              0.0000
+Insufficient collateral     0.0000
+Margin tier                 0.0000
+
+Percentage of cumulative |Δw| split by cause:
+Slippage                  97.55%
+Trade size                 2.45%
+none                       0.00%
+Trade_size                 0.00%
+Leverage limit             0.00%
+Insufficient collateral    0.00%
+Margin tier                0.00%
