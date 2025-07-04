@@ -3,30 +3,14 @@ import gymnasium as gym
 from gymnasium import spaces
 import matplotlib.pyplot as plt
 import random
-from ray.data import Dataset, from_numpy, read_parquet
-import itertools
+from ray.data import read_parquet
 import json
-import os
-import gc
 import cvxpy as cp
 import math
 from collections import deque
 
 # Global variables
 
-# min_size_usdt_assets = [
-#     100,  # BTCUSDT placeholder
-#     20,  # ETHUSDT placeholder
-#     5,  # BNBUSDT placeholder
-#     5,  # XRPUSDT placeholder
-#     5,  # SOLUSDT placeholder
-#     5,  # ADAUSDT placeholder
-#     5,  # DOGEUSDT placeholder
-#     5,  # TRXUSDT placeholder
-#     5,  # AVAXUSDT placeholder
-#     5,  # SHIBUSDT placeholder
-#     5,  # DOTUSDT placeholder
-# ]
 
 min_size_usdt_assets = [
     5,  # ADAUSDT placeholder
@@ -36,25 +20,11 @@ min_size_usdt_assets = [
     5,  # EOSUSDT placeholder
     20,  # ETHUSDT placeholder
     20,  # LTCUSDT placeholder
-    # 5,  # NEOUSDT placeholder
     5,  # TRXUSDT placeholder
     5,  # XLMUSDT placeholder
     5,  # XRPUSDT placeholder
 ]
 
-# min_trade_amount_assets = [
-#     0.001,  # BTCUSDT min trade in BTC equivalent placeholder
-#     0.001,  # ETHUSDT placeholder (or use notional checks)
-#     0.01,  # BNBUSDT
-#     0.1,  # XRPUSDT etc.
-#     1,  # SOLUSDT
-#     1,  # ADAUSDT
-#     1,  # DOGEUSDT
-#     1,  # TRXUSDT
-#     1,  # AVAXUSDT
-#     1,  # SHIBUSDT
-#     0.1,  # DOTUSDT
-# ]
 
 min_trade_amount_assets = [
     1,  # ADAUSDT placeholder
@@ -64,25 +34,10 @@ min_trade_amount_assets = [
     0.1,  # EOSUSDT placeholder
     0.001,  # ETHUSDT placeholder
     0.001,  # LTCUSDT placeholder
-    # 0.01,  # NEOUSDT placeholder
     1,  # TRXUSDT placeholder
     1,  # XLMUSDT placeholder
     0.1,  # XRPUSDT placeholder
 ]
-
-# max_market_amount_assets = [
-#     120,  # BTCUSDT max amount in BTC or a large notional as placeholder
-#     2000,  # ETHUSDT placeholder
-#     2000,  # BNBUSDT placeholder
-#     2000000,  # XRPUSDT placeholder
-#     5000,  # SOLUSDT placeholder
-#     300000,  # ADAUSDT placeholder
-#     30000000,  # DOGEUSDT placeholder
-#     5000000,  # TRXUSDT placeholder
-#     5000,  # AVAXUSDT placeholder
-#     50000000,  # SHIBUSDT placeholder
-#     50000,  # DOTUSDT placeholder
-# ]
 
 max_market_amount_assets = [
     300000,  # ADAUSDT placeholder
@@ -92,25 +47,10 @@ max_market_amount_assets = [
     120000,  # EOSUSDT placeholder
     2000,  # ETHUSDT placeholder
     5000,  # LTCUSDT placeholder
-    # 10000,  # NEOUSDT placeholder
     5000000,  # TRXUSDT placeholder
     1000000,  # XLMUSDT placeholder
     2000000,  # XRPUSDT placeholder
 ]
-
-# min_price_change_usdt = [
-#     0.1,
-#     0.01,
-#     0.01,
-#     0.0001,
-#     0.01,
-#     0.0001,
-#     0.00001,
-#     0.00001,
-#     0.001,
-#     0.000001,
-#     0.001,
-# ]
 
 min_price_change_usdt = [
     0.0001,  # ADAUSDT placeholder
@@ -125,28 +65,6 @@ min_price_change_usdt = [
     0.00001,  # XLMUSDT placeholder
     0.0001,  # XRPUSDT placeholder
 ]
-
-
-def project_sum_and_l1(v, L=5.0):
-    """
-    Project v onto { w | sum(w)=1  and  ||w||_1 <= L }.
-    O(n log n) algorithm:  shift to enforce the sum, then
-    Condat/Duchi projection onto the L1-ball.
-    """
-    v = np.asarray(v, dtype=np.float64)
-    n = v.size
-    # Step 1: shift so that sum == 1
-    v += (1 - v.sum()) / n
-    # Step 2: if leverage already ≤ L, return
-    if np.sum(np.abs(v)) <= L:
-        return v
-    # Condat/Duchi projector onto the L1 ball of radius L
-    u = np.abs(v)
-    w = np.sort(u)[::-1]
-    cssv = np.cumsum(w)
-    rho = np.nonzero(w - (cssv - L) / np.arange(1, n + 1) > 0)[0][-1]
-    theta = (cssv[rho] - L) / (rho + 1.0)
-    return np.sign(v) * np.maximum(u - theta, 0.0)
 
 
 def project_fully_invested_l1(v, L=5.0):
@@ -170,8 +88,8 @@ class TradingEnvironment(gym.Env):
 
     def __init__(
         self,
-        data_path="train_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17_stage3",
-        raw_data_path="train_raw_ohlcv_100_1d_NewVal2.npy",
+        data_path="data/train_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17_stage1",
+        raw_data_path="data/train_raw_ohlcv_100_1d_NewVal2.npy",
         states=None,
         mode="train",
         leverage=5,
@@ -525,11 +443,6 @@ class TradingEnvironment(gym.Env):
             unrealized_pnl_i_s0 = self._scale(f"unrealized_pnl_{i}", unrealized_pnl_i0)
             list_unrealized_pnl_i_s0.append(unrealized_pnl_i_s0)
 
-        mm_reqs_s0 = self._scale("mm_reqs", 0.0)
-        free_collateral_s0 = self._scale("free_collateral", self.initial_balance)
-        margin_usage_ratio_s0 = self._scale("margin_usage_ratio", 0.0)
-        concentration_hhi_s0 = self._scale("concentration_hhi", 0.0)
-
         if self.limit_bounds:
             self.default_static_values = np.array(
                 [
@@ -558,30 +471,6 @@ class TradingEnvironment(gym.Env):
                 ]
             )
         else:
-            # self.default_static_values = np.array(
-            #     [
-            #         self.unrealized_pnl,
-            #         self.realized_pnl,
-            #         self.compounded_returns - 1,
-            #         self.entry_price,
-            #         self.leverage,
-            #         self.allowed_leverage,
-            #         self.balance,
-            #         self.position_value,
-            #         self.desired_position_size,
-            #         self.current_position_size,
-            #         0,
-            #         self.previous_max_dd,
-            #         self.closing_fee,
-            #         self.opening_fee,
-            #         self.current_ask,
-            #         self.current_bid,
-            #         self.mark_price,
-            #         self.current_risk,
-            #         self.risk_adjusted_step,
-            #         self.sharpe_ratio,
-            #     ]
-            # )
             self.default_static_values = np.array(
                 [
                     unrealized_pnl_s0,
@@ -601,30 +490,6 @@ class TradingEnvironment(gym.Env):
                     cos_dow0,
                     regime_flag0,
                     spread_pct0,
-                    # list_liq_dist_i_s0[0],
-                    # list_liq_dist_i_s0[1],
-                    # list_liq_dist_i_s0[2],
-                    # list_liq_dist_i_s0[3],
-                    # list_liq_dist_i_s0[4],
-                    # list_liq_dist_i_s0[5],
-                    # list_liq_dist_i_s0[6],
-                    # list_liq_dist_i_s0[7],
-                    # list_liq_dist_i_s0[8],
-                    # list_liq_dist_i_s0[9],
-                    # list_unrealized_pnl_i_s0[0],
-                    # list_unrealized_pnl_i_s0[1],
-                    # list_unrealized_pnl_i_s0[2],
-                    # list_unrealized_pnl_i_s0[3],
-                    # list_unrealized_pnl_i_s0[4],
-                    # list_unrealized_pnl_i_s0[5],
-                    # list_unrealized_pnl_i_s0[6],
-                    # list_unrealized_pnl_i_s0[7],
-                    # list_unrealized_pnl_i_s0[8],
-                    # list_unrealized_pnl_i_s0[9],
-                    # mm_reqs_s0,
-                    # free_collateral_s0,
-                    # margin_usage_ratio_s0,
-                    # concentration_hhi_s0,
                 ],
                 dtype=np.float32,
             )
@@ -647,46 +512,6 @@ class TradingEnvironment(gym.Env):
         super().reset(seed=seed, **kwargs)  # Call to super to handle seeding properly
 
         data_length = self.data.count()
-        max_start_index = data_length - self.episode_length
-
-        # #### Random method
-
-        # # Randomly select a starting point in the dataset, ensuring there's enough data left for the episode
-        # self.start_idx = random.randint(0, max_start_index - 1)
-
-        # #### Walk-forward method
-
-        # self.start_idx = self._wf_ptr
-        # self._wf_ptr += self.wf_gap  # slide forward by 1 month
-        # if self._wf_ptr + self.episode_length >= max_start_index:
-        #     self._wf_ptr = 0  # restart walk‑forward
-
-        # ##### Walk-forward with purging and worker offset
-        # wid = kwargs.get("worker_idx", 0)  # each rollout-worker starts staggered
-        # self.start_idx = (self._wf_ptr + wid * self.wf_gap) % self.max_start
-        # self._wf_ptr = (self._wf_ptr + self.wf_gap + self.wf_purge) % self.max_start
-
-        # ##### Walk-forward with purging and worker offset and random
-        # # If we've used up all windows, reshuffle for the next “epoch”
-        # if self._next_start >= len(self.valid_starts):
-        #     self.valid_starts = list(range(0, self.max_start + 1, self.wf_gap))
-        #     random.shuffle(self.valid_starts)
-        #     self._next_start = 0
-        # # Pop out one random start index
-        # idx = self.valid_starts[self._next_start]
-        # self._next_start += 1
-        # # Assign start_idx directly
-        # self.start_idx = idx
-
-        # #### Iterative method
-
-        # # Initialize or increment the starting index iteratively
-        # if not hasattr(self, "current_start_idx"):
-        #     self.current_start_idx = 0  # Start from the beginning initially
-        # else:
-        #     # Increment by 1 and wrap around if exceeding max_start_index
-        #     self.current_start_idx = (self.current_start_idx + 1) % max_start_index
-        # self.start_idx = self.current_start_idx
 
         #### One big episode method
         if self.mode == "train":
@@ -865,11 +690,6 @@ class TradingEnvironment(gym.Env):
             unrealized_pnl_i_s0 = self._scale(f"unrealized_pnl_{i}", unrealized_pnl_i0)
             list_unrealized_pnl_i_s0.append(unrealized_pnl_i_s0)
 
-        mm_reqs_s0 = self._scale("mm_reqs", 0.0)
-        free_collateral_s0 = self._scale("free_collateral", self.initial_balance)
-        margin_usage_ratio_s0 = self._scale("margin_usage_ratio", 0.0)
-        concentration_hhi_s0 = self._scale("concentration_hhi", 0.0)
-
         if self.limit_bounds:
             self.default_static_values = np.array(
                 [
@@ -898,30 +718,6 @@ class TradingEnvironment(gym.Env):
                 ]
             )
         else:
-            # self.default_static_values = np.array(
-            #     [
-            #         self.unrealized_pnl,
-            #         self.realized_pnl,
-            #         self.compounded_returns - 1,
-            #         self.entry_price,
-            #         self.leverage,
-            #         self.allowed_leverage,
-            #         self.balance,
-            #         self.position_value,
-            #         self.desired_position_size,
-            #         self.current_position_size,
-            #         0,
-            #         self.previous_max_dd,
-            #         self.closing_fee,
-            #         self.opening_fee,
-            #         self.current_ask,
-            #         self.current_bid,
-            #         self.mark_price,
-            #         self.current_risk,
-            #         self.risk_adjusted_step,
-            #         self.sharpe_ratio,
-            #     ]
-            # )
             self.default_static_values = np.array(
                 [
                     unrealized_pnl_s0,
@@ -941,46 +737,11 @@ class TradingEnvironment(gym.Env):
                     cos_dow0,
                     regime_flag0,
                     spread_pct0,
-                    # list_liq_dist_i_s0[0],
-                    # list_liq_dist_i_s0[1],
-                    # list_liq_dist_i_s0[2],
-                    # list_liq_dist_i_s0[3],
-                    # list_liq_dist_i_s0[4],
-                    # list_liq_dist_i_s0[5],
-                    # list_liq_dist_i_s0[6],
-                    # list_liq_dist_i_s0[7],
-                    # list_liq_dist_i_s0[8],
-                    # list_liq_dist_i_s0[9],
-                    # list_unrealized_pnl_i_s0[0],
-                    # list_unrealized_pnl_i_s0[1],
-                    # list_unrealized_pnl_i_s0[2],
-                    # list_unrealized_pnl_i_s0[3],
-                    # list_unrealized_pnl_i_s0[4],
-                    # list_unrealized_pnl_i_s0[5],
-                    # list_unrealized_pnl_i_s0[6],
-                    # list_unrealized_pnl_i_s0[7],
-                    # list_unrealized_pnl_i_s0[8],
-                    # list_unrealized_pnl_i_s0[9],
-                    # mm_reqs_s0,
-                    # free_collateral_s0,
-                    # margin_usage_ratio_s0,
-                    # concentration_hhi_s0,
                 ],
                 dtype=np.float32,
             )
 
         self.num_state_features = len(self.default_static_values)
-
-        # print("DEFAULT STATIC VALUES : ", self.default_static_values)
-
-        # usable_rows = self._raw_np.shape[0]  # rows in *this* split
-        # max_steps = usable_rows - self.input_length  # how far we can go
-        # if max_steps <= 0:
-        #     raise ValueError(
-        #         f"raw file only has {usable_rows} rows, input_length={self.input_length}"
-        #     )
-        # # shrink the episode length, if needed
-        # self.episode_length = min(self.episode_length, max_steps)
 
         # Prepare the windowed dataset for the episode
         self.end_idx = self.start_idx + self.episode_length
@@ -1304,76 +1065,8 @@ class TradingEnvironment(gym.Env):
                 # levs = np.full(num_assets, np.sum(np.abs(weights)))
                 levs = np.ceil(levs).astype(int)
 
-        # # Step 1: Enforce leverage constraint: sum(|w_i|) <= default_leverage
-        # total_leverage = np.sum(np.abs(weights))
-        # if (
-        #     total_leverage > default_leverage and total_leverage > 0
-        # ):  # Avoid division by zero
-        #     scaling_factor = default_leverage / total_leverage
-        #     weights = weights * scaling_factor
-
-        # # Step 2: Enforce net exposure constraint: |sum(w_i)| <= net_exposure
-        # current_net_exposure = np.sum(weights)
-        # if np.abs(current_net_exposure) > net_exposure:
-        #     # Calculate the excess net exposure
-        #     excess = np.abs(current_net_exposure) - net_exposure
-        #     adjustment_direction = np.sign(current_net_exposure)
-
-        #     if adjustment_direction > 0:
-        #         # Too much long exposure, reduce positive weights
-        #         positive_weights = weights > 0
-        #         if np.sum(positive_weights) > 0:
-        #             reduction_per_positive = excess / np.sum(positive_weights)
-        #             weights[positive_weights] -= reduction_per_positive
-        #     else:
-        #         # Too much short exposure, reduce negative weights (increase toward zero)
-        #         negative_weights = weights < 0
-        #         if np.sum(negative_weights) > 0:
-        #             reduction_per_negative = excess / np.sum(np.abs(negative_weights))
-        #             weights[
-        #                 negative_weights
-        #             ] += reduction_per_negative  # Reduce magnitude
-
-        #     # After adjustment, re-check leverage as it may have changed
-        #     total_leverage = np.sum(np.abs(weights))
-        #     if total_leverage > default_leverage and total_leverage > 0:
-        #         scaling_factor = default_leverage / total_leverage
-        #         weights = weights * scaling_factor
-
-        # #### Optimizer method
-        # # Decision variable: adjusted weights
-        # n = self.num_assets
-        # x = cp.Variable(n)
-        # # Penalty parameter: a large value forces leverage toward 1
-        # lambda_param = 1000.0
-        # # The net exposure constraint: the sum of weights must equal 1.
-        # constraints = [cp.sum(x) == 1]
-        # # We want x to be as close as possible to the raw weights,
-        # # but if the leverage (the L1 norm) exceeds 1, we add a penalty.
-        # # Note: cp.pos(cp.norm1(x) - 1) is zero when cp.norm1(x) <= 1.
-        # objective = cp.Minimize(
-        #     cp.sum_squares(x - weights)
-        #     + lambda_param * cp.square(cp.pos(cp.norm1(x) - 1))
-        # )
-        # # Solve the problem
-        # prob = cp.Problem(objective, constraints)
-        # result = prob.solve()
-        # # Output the results
-        # optimized_weights = x.value
-        # weights = optimized_weights
-
-        ##### Condat method
-        # NEW: enforce constraints → legal weights
-        # weights = project_fully_invested_l1(weights, L=5.0)
         print("NET EXPOSURE WEIGHTS : ", np.sum(weights))
         print("LEVERAGE WEIGHTS : ", np.sum(np.abs(weights)))
-
-        # ##### NEW: long-only simplex projection (fast)
-        # s = weights.sum()
-        # if s > 0:  # avoid divide-by-zero
-        #     weights = weights / s  # Σw = 1, w_i ∈ [0,1]
-        # else:
-        #     weights = np.full_like(weights, 1.0 / self.num_assets)  # fallback uniform
 
         self.previous_action = weights
         self.action_history.append(
@@ -1390,44 +1083,9 @@ class TradingEnvironment(gym.Env):
             }
         )
 
-        # total_weight_sum = np.sum(np.abs(weights))  # if you mean absolute sum ≤ 1
-        # # or np.sum(weights) if weights are guaranteed non-negative
-
-        # max_allowed_sum = 1.0
-        # if total_weight_sum > max_allowed_sum:
-        #     # Scale all weights down proportionally
-        #     weights = weights * (max_allowed_sum / total_weight_sum)
-
-        # # Map leverages from [-1,1] to [1, self.max_leverage]
-        # # mapped_leverage = ((value+1)/2)*(max_leverage-1) + 1
-        # leverages = ((leverages + 1) / 2.0) * (self.max_leverage - 1) + 1
-        # leverages = np.round(leverages).astype(int)
-        # leverages = np.clip(leverages, 1, self.max_leverage)
-
         allowed_leverages = [None, None, None, None, None, None, None, None, None, None]
         desired_position_sizes = []
         current_position_sizes = []
-
-        # # Get current OHLCV for each asset
-        # # Assuming data layout: for asset i, columns: i*5 to i*5+4 (Open,High,Low,Close,Volume)
-        # current_opens = []
-        # current_highs = []
-        # current_lows = []
-        # current_closes = []
-        # current_volumes = []
-        # for i in range(num_assets):
-        #     base_idx = i * 5
-        #     current_open = self.state[-1, base_idx + 0]
-        #     current_high = self.state[-1, base_idx + 1]
-        #     current_low = self.state[-1, base_idx + 2]
-        #     current_close = self.state[-1, base_idx + 3]
-        #     current_volume = self.state[-1, base_idx + 4]
-
-        #     current_opens.append(current_open)
-        #     current_highs.append(current_high)
-        #     current_lows.append(current_low)
-        #     current_closes.append(current_close)
-        #     current_volumes.append(current_volume)
 
         # ------- NEW -------------------------------------------
         if self.mode == "train":
@@ -1436,9 +1094,6 @@ class TradingEnvironment(gym.Env):
             # for validation & test
             raw_idx = self.current_step
 
-        # print("START INDEX : ", self.start_idx)
-        # print("CURRENT STEP : ", self.current_step)
-        # print("RAW INDEX : ", raw_idx)
         row_raw = self._raw_np[raw_idx]  # 1-D vector length 50
 
         current_opens = []
@@ -1507,76 +1162,6 @@ class TradingEnvironment(gym.Env):
 
         desired_position_sizes.clear()
         current_position_sizes.clear()
-
-        # # End of episode check: close all positions
-        # if (self.current_step + 1) >= (self.start_idx + self.episode_length) and any(
-        #     pos["type"] for pos in self.positions.values()
-        # ):
-        #     # Close all positions
-        #     for i in range(num_assets):
-        #         pos = self.positions[i]
-        #         if pos["type"] is not None and pos["size"] > 0:
-        #             if pos["type"] == "long":
-        #                 realized_pnl_i = pos["size"] * (
-        #                     (bids[i] - pos["entry_price"]) / pos["entry_price"]
-        #                 )
-        #                 closing_fee = pos["size"] * self.market_fee
-        #                 self.balance += (
-        #                     realized_pnl_i - closing_fee - self.opening_fee
-        #                 ) + (pos["size"] / pos["leverage"])
-        #                 self.realized_pnl += (
-        #                     realized_pnl_i - closing_fee - self.opening_fee
-        #                 )
-        #             else:
-        #                 realized_pnl_i = pos["size"] * (
-        #                     (pos["entry_price"] - asks[i]) / pos["entry_price"]
-        #                 )
-        #                 closing_fee = pos["size"] * self.market_fee
-        #                 self.balance += (
-        #                     realized_pnl_i - closing_fee - self.opening_fee
-        #                 ) + (pos["size"] / pos["leverage"])
-        #                 self.realized_pnl += (
-        #                     realized_pnl_i - closing_fee - self.opening_fee
-        #                 )
-        #             # Reset position
-        #             self.positions[i] = {
-        #                 "type": None,
-        #                 "entry_price": 0.0,
-        #                 "size": 0.0,
-        #                 "leverage": self.leverage,
-        #             }
-
-        #     self.unrealized_pnl = 0
-        #     reward = 0
-        #     self.opening_fee = 0
-        #     self.closing_fee = 0
-        #     self.position_value = 0
-        #     self.unrealized_pnl_s = [
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #     ]
-        #     self.liqu_distances = [
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #         0,
-        #     ]
-
-        # else:
 
         # Not end of episode, proceed with actions per asset
         reward = 0
@@ -1706,7 +1291,6 @@ class TradingEnvironment(gym.Env):
                 desired_position_i = weight_i * self.free_collateral
 
             # Current position details
-            # entry_price = pos["entry_price"]
             current_size = pos["size"]
             current_position_sizes.append(current_size)
             current_direction = pos["type"]
@@ -2222,8 +1806,6 @@ class TradingEnvironment(gym.Env):
                 / total_size
             )
 
-            # self.leverage = weighted_leverage
-            # self.allowed_leverage = weighted_allowed_leverage
             self.entry_price = weighted_entry_price
         else:
             self.leverage = self.leverage
@@ -2261,12 +1843,6 @@ class TradingEnvironment(gym.Env):
                 self.clip_val,
             )
         ) / self.clip_val
-        # entry_price_s = self._scale(
-        #     "rel_mark",
-        #     (self.entry_price - self.current_bid) / (self.current_bid + 1e-8),
-        # )
-        # leverage_s = self._scale("leverage", self.leverage)
-        # allowed_lev_s = self._scale("leverage", self.allowed_leverage)
         balance_s = (
             np.clip(self._scale("balance", self.balance), -self.clip_val, self.clip_val)
         ) / self.clip_val
@@ -2277,9 +1853,6 @@ class TradingEnvironment(gym.Env):
                 self.clip_val,
             )
         ) / self.clip_val
-        # desired_ps_s = self._scale(
-        #     "current_position_size", self.desired_position_size
-        # )
         current_ps_s = (
             np.clip(
                 self._scale("current_position_size", self.current_position_size),
@@ -2305,8 +1878,6 @@ class TradingEnvironment(gym.Env):
                 self.clip_val,
             )
         ) / self.clip_val
-        # risk_s = self._scale("unrealized_pnl", self.current_risk)
-        # risk_adj_step_s = self._scale("unrealized_pnl", self.risk_adjusted_step)
         sortino_s = (
             np.clip(
                 self._scale("sortino_ratio", self.sortino_ratio),
@@ -2361,13 +1932,6 @@ class TradingEnvironment(gym.Env):
             unrealized_pnl_i_s = self._scale(f"unrealized_pnl_{i}", unrealized_pnl_i)
             list_unrealized_pnl_i_s.append(unrealized_pnl_i_s)
 
-        mm_reqs_s = self._scale("mm_reqs", self.mm_reqs)
-        free_collateral_s = self._scale("free_collateral", self.free_collateral)
-        margin_usage_ratio_s = self._scale(
-            "margin_usage_ratio", self.margin_usage_ratio
-        )
-        concentration_hhi_s = self._scale("concentration_hhi", self.concentration_hhi)
-
         if self.limit_bounds:
             additional_state = np.array(
                 [
@@ -2396,31 +1960,6 @@ class TradingEnvironment(gym.Env):
                 ]
             )
         else:
-            # additional_state = np.array(
-            #     [
-            #         self.unrealized_pnl,
-            #         self.realized_pnl,
-            #         self.compounded_returns - 1,
-            #         self.entry_price,
-            #         self.leverage,
-            #         self.allowed_leverage,
-            #         self.balance,
-            #         self.position_value,
-            #         self.desired_position_size,
-            #         self.current_position_size,
-            #         last_log_ret,
-            #         self.previous_max_dd,
-            #         self.closing_fee,
-            #         self.opening_fee,
-            #         self.current_ask,
-            #         self.current_bid,
-            #         self.mark_price,
-            #         self.current_risk,
-            #         self.risk_adjusted_step,
-            #         self.sharpe_ratio,
-            #     ]
-            # )
-
             additional_state = np.array(
                 [
                     # ----- original ----------
@@ -2442,35 +1981,9 @@ class TradingEnvironment(gym.Env):
                     cos_dow,
                     regime_flag,
                     spread_pct_s,
-                    # list_liq_dist_i_s[0],
-                    # list_liq_dist_i_s[1],
-                    # list_liq_dist_i_s[2],
-                    # list_liq_dist_i_s[3],
-                    # list_liq_dist_i_s[4],
-                    # list_liq_dist_i_s[5],
-                    # list_liq_dist_i_s[6],
-                    # list_liq_dist_i_s[7],
-                    # list_liq_dist_i_s[8],
-                    # list_liq_dist_i_s[9],
-                    # list_unrealized_pnl_i_s[0],
-                    # list_unrealized_pnl_i_s[1],
-                    # list_unrealized_pnl_i_s[2],
-                    # list_unrealized_pnl_i_s[3],
-                    # list_unrealized_pnl_i_s[4],
-                    # list_unrealized_pnl_i_s[5],
-                    # list_unrealized_pnl_i_s[6],
-                    # list_unrealized_pnl_i_s[7],
-                    # list_unrealized_pnl_i_s[8],
-                    # list_unrealized_pnl_i_s[9],
-                    # mm_reqs_s,
-                    # free_collateral_s,
-                    # margin_usage_ratio_s,
-                    # concentration_hhi_s,
                 ],
                 dtype=np.float32,
             )
-
-        # print("ADDITIONAL STATIC VALUES : ", self.default_static_values)
 
         self.welford_reward_attributes.append(
             {
@@ -2665,63 +2178,6 @@ class TradingEnvironment(gym.Env):
         self.portfolio_value = self.balance + self.unrealized_pnl + self.position_value
         self.closing_fee = 0
         self.opening_fee = 0
-
-    def calculate_liquidation_price(self, idx):
-        """
-        Adapted calculation of a liquidation price for a multi-asset portfolio.
-        This is a simplified approach:
-        - Compute total notional value from all open positions.
-        - Use that to get maintenance_margin_rate and required_margin.
-        - Assume the 'worst-case scenario' is reflected by the first asset (or any chosen reference asset).
-        For a real multi-asset scenario, a single liquidation price is not truly representative.
-        """
-
-        # If no positions, no margin price
-        active_positions = [
-            pos
-            for pos in self.positions.values()
-            if pos["type"] is not None and pos["size"] > 0
-        ]
-        if not active_positions:
-            return 0
-
-        # Compute total notional value
-        total_notional = sum(pos["size"] for pos in active_positions)
-
-        # Get margin tier from total_notional
-        leverage, maintenance_margin_rate, maintenance_amount, _, _ = (
-            self.get_margin_tier(total_notional)
-        )
-        required_margin = maintenance_margin_rate * total_notional - maintenance_amount
-
-        # # One-way mode, cross-margin logic: we need a reference asset for margin_price computation
-        # # Let's pick the first asset that has a position as reference:
-        # for i, pos in self.positions.items():
-        #     if pos["type"] is not None and pos["size"] > 0:
-        #         reference_asset_index = i
-        #         reference_pos = pos
-        #         break
-
-        entry_price = self.positions[idx]["entry_price"]
-        position_type = self.positions[idx]["type"]
-        position_size = self.positions[idx]["size"]
-
-        # Calculate margin call price using reference asset logic
-        # This mirrors the single asset logic but on the chosen reference position
-        # margin_price = same formula as single asset:
-        if position_type == "long":
-            margin_price = (
-                entry_price
-                * (-(self.portfolio_value - required_margin) / position_size)
-            ) + entry_price
-        else:
-            margin_price = entry_price - (
-                entry_price
-                * (-(self.portfolio_value - required_margin) / position_size)
-            )
-
-        margin_price = max(margin_price, 0)
-        return margin_price
 
     def update_stop_loss_if_needed(
         self, asset_index: int, stop_loss: float, take_profit: float, mark_price: float
@@ -3011,16 +2467,6 @@ class TradingEnvironment(gym.Env):
                 (25000000, 50000000, 2, 0.25, 4181300),
                 (50000000, 100000000, 1, 0.5, 16681300),
             ],
-            # 6: [  # neousdt
-            #     (0, 5000, 50, 0.006, 0),
-            #     (5000, 50000, 25, 0.01, 20),
-            #     (50000, 400000, 20, 0.025, 770),
-            #     (400000, 800000, 10, 0.05, 10770),
-            #     (800000, 1000000, 5, 0.1, 50770),
-            #     (1000000, 1500000, 4, 0.125, 75770),
-            #     (1500000, 2000000, 2, 0.25, 263270),
-            #     (2000000, 2500000, 1, 0.5, 763270),
-            # ],
             7: [  # trxusdt
                 (0, 10000, 75, 0.0065, 0),
                 (10000, 90000, 50, 0.01, 35),
@@ -3081,337 +2527,6 @@ class TradingEnvironment(gym.Env):
         r_raw = v_t - self.lambda_vol * sigma
 
         return float(r_raw)
-
-    # def calculate_reward(self):
-    #     if len(self.log_trading_returns) < 2:
-    #         return 0.0
-
-    #     # --- 1. step z-score over a 120-day rolling window -------------
-    #     win = np.array(self.log_trading_returns[-120:])
-    #     mu, sigma = win.mean(), win.std() + 1e-8
-    #     r_step = (self.log_trading_returns[-1] - mu) / sigma  #  dense signal
-
-    #     ### -- downside-only Sortino (optional bonus) -------------------------
-    #     neg = np.minimum(win, 0.0)
-    #     sortino = win.mean() / (np.sqrt((neg**2).mean()) + 1e-3)
-    #     sortino = np.clip(sortino, -5.0, 5.0)
-    #     r_sortino = sortino  # weight 0.2 keeps |term| ≤ 1
-
-    #     ### -- CVaR-95 penalty -------------------------------------------------
-    #     # make sure we always have at least one tail observation
-    #     k = max(1, int(0.05 * win.size))
-    #     tail_mean = np.sort(win)[:k].mean()
-    #     r_cvar = -0.1 * abs(tail_mean / 0.05)  # scale by typical daily σ≈2 %
-
-    #     # ### -- draw-down penalty at episode end -------------------------------
-    #     # r_dd = 0.0
-    #     # if (self.current_step + 1) >= (self.start_idx + self.episode_length):
-    #     #     max_dd = calculate_max_drawdown(self.history)  # 0 … 1
-    #     #     r_dd = -max_dd  # already ≤ 0
-
-    #     # -------- 4) composite raw reward -----------------------------
-    #     r_raw = r_step + r_sortino + r_cvar  # (roughly –7 … +6 pre-normalisation)
-
-    #     # # -------- 5) update running min/max (EMA) ---------------------
-    #     # self.r_min_ema = min(
-    #     #     self.r_min_ema,
-    #     #     (1 - self.norm_alpha) * self.r_min_ema + self.norm_alpha * r_raw,
-    #     # )
-    #     # self.r_max_ema = max(
-    #     #     self.r_max_ema,
-    #     #     (1 - self.norm_alpha) * self.r_max_ema + self.norm_alpha * r_raw,
-    #     # )
-
-    #     # # -------- 6) min-max normalise to [-1, 1] ---------------------
-    #     # denom = self.r_max_ema - self.r_min_ema + 1e-6
-    #     # r_norm = 2.0 * (r_raw - self.r_min_ema) / denom - 1.0
-
-    #     # print("MIN EMA : ", self.r_min_ema)
-    #     # print("MAX EMA : ", self.r_max_ema)
-
-    #     # --- 5) online mean / var update --------------------------------
-    #     self._welford_update_reward(r_raw)
-
-    #     # sample std (unbiased); guard against n < 2
-    #     if self.r_count < 2:
-    #         return float(np.tanh(r_raw / self.tanh_k))
-
-    #     mean = self.r_mean
-    #     std = math.sqrt(self.r_var / (self.r_count - 1 + 1e-8))
-
-    #     # --- 6) z-score & squash to [-1,1] ------------------------------
-    #     z = (r_raw - mean) / (std + 1e-8)
-    #     # r_norm = math.tanh(z / self.tanh_k)  # Tanh
-    #     # r_norm = z / (1.0 + abs(z))  # SoftSign
-
-    #     print("REWARD COUNT : ", self.r_count)
-    #     print("REWARD MEAN : ", self.r_mean)
-    #     print("REWARD VAR : ", self.r_var)
-    #     print("TANH_K : ", self.tanh_k)
-
-    #     return float(z)
-
-    # def calculate_reward(self):
-    #     if len(self.log_trading_returns) < 2:
-    #         return 0.0
-    #     win = np.array(self.log_trading_returns[-120:])  # one month
-    #     mu, sigma = win.mean(), win.std() + 1e-6
-    #     return (self.log_trading_returns[-1] - mu) / sigma  # z-score
-
-    # def calculate_reward(self):
-    #     # Add log-returns as reward
-    #     log_returns = np.array(self.log_trading_returns)
-    #     if len(log_returns) < 1 or np.isnan(log_returns).any():
-    #         return 0  # Not enough data for log returns
-
-    #     return log_returns[-1]
-
-    # def calculate_reward(self):
-    #     if len(self.log_trading_returns) == 0:
-    #         return 0.0
-
-    #     step_ret = self.log_trading_returns[-1]
-    #     downside = min(step_ret, 0.0) ** 2
-
-    #     α, λ, β, κ, γ = 0.2, 3.0, 0.5, 0.4, 1.0
-    #     r_step = α * step_ret - λ * downside
-
-    #     # 30‑day rolling window
-    #     window = np.array(self.trading_returns[-30:])
-    #     if len(window) < 5:  # need at least a week
-    #         return r_step
-    #     rf_daily = 0.005 / 252
-    #     excess = window.mean() - rf_daily
-    #     down_dev = np.sqrt(np.mean(np.square(np.minimum(window - rf_daily, 0))))
-    #     sortino = excess / down_dev if down_dev else 0
-    #     r_roll = β * sortino
-
-    #     # CVaR‑95
-    #     cvar95 = np.mean(np.sort(window)[: max(1, int(0.05 * len(window)))])
-    #     r_cvar = -κ * abs(cvar95)
-
-    #     # episode‑end draw‑down
-    #     r_dd = 0
-    #     if (self.current_step + 1) >= (self.start_idx + self.episode_length):
-    #         max_dd = calculate_max_drawdown(self.history)
-    #         r_dd = -γ * max_dd
-
-    #     return r_step + r_roll + r_cvar + r_dd
-
-    # def calculate_reward(self):
-    #     if len(self.history) < 2:
-    #         return 0  # Not enough data to calculate reward
-
-    #     returns = np.array(self.trading_returns)
-    #     if len(returns) < 1 or np.isnan(returns).any():
-    #         return 0  # Not enough data to calculate returns
-
-    #     # max_dd = calculate_max_drawdown(self.history)
-
-    #     # # Rolling sharpe ratio
-    #     # WINDOW_SIZE = min(len(returns), 30)
-    #     # RISK_FREE_RATE = 0.005 / (365.25 * 24)
-    #     # ROLLING_SHARPE_FACTOR = WINDOW_SIZE / 30
-
-    #     # window_returns = returns[-WINDOW_SIZE:]
-    #     # mean_return = np.mean(window_returns)
-    #     # std_return = np.std(window_returns)
-    #     # rolling_sharpe = (
-    #     #     ((mean_return - RISK_FREE_RATE) / std_return) if std_return != 0 else 0
-    #     # )
-    #     # self.sharpe_ratio = rolling_sharpe
-
-    #     # Add log-returns as reward
-    #     log_returns = np.array(self.log_trading_returns)
-    #     if len(log_returns) < 1 or np.isnan(log_returns).any():
-    #         return 0  # Not enough data for log returns
-
-    #     # Compute current risk from all open positions
-    #     # For each asset, compute a risk component similar to single asset logic and sum or take max.
-    #     # We'll sum the risk from each asset's position.
-    #     # current_risk = 0
-    #     # if self.positions:
-    #     #     for asset, pos in self.positions.items():
-    #     #         if pos["type"] is not None and pos["size"] > 0:
-    #     #             # Assume margin_price and liquidation_fee, opening_fee apply globally or per asset
-    #     #             # If margin_price is portfolio-level, we approximate asset-level risk similarly
-    #     #             # Using the same formula: ((abs(entry_price - margin_price)/entry_price)+liquidation_fee)*size +2*opening_fee)/portfolio_value
-    #     #             # margin_price is a single number. For multi-assets, this is an approximation.
-    #     #             # Alternatively, you could define a per-asset margin_price or similar logic.
-    #     #             entry_price = pos["entry_price"]
-    #     #             position_size = pos["size"]
-    #     #             # Using the global margin_price as a proxy for all assets:
-    #     #             asset_risk = (
-    #     #                 (abs(entry_price - self.margin_price) / entry_price)
-    #     #                 + self.liquidation_fee
-    #     #             ) * position_size + (2 * self.opening_fee)
-    #     #             current_risk += asset_risk
-    #     #     # Normalize by portfolio value
-    #     #     current_risk = (
-    #     #         current_risk / self.portfolio_value if self.portfolio_value != 0 else 1
-    #     #     )
-    #     #     current_risk = min(current_risk, 1)
-    #     # else:
-    #     #     current_risk = 0
-
-    #     # self.current_risk = current_risk
-
-    #     # total_required_margin = 0
-    #     # for asset_id, pos in self.positions.items():
-    #     #     if pos["type"] is not None and pos["size"] > 0:
-    #     #         notional_value = pos["size"]
-    #     #         max_lev, mm_rate, mm_amt, low_s, up_s = self.get_margin_tier(
-    #     #             asset_id, notional_value
-    #     #         )
-    #     #         required_margin = mm_rate * notional_value - mm_amt
-    #     #         if required_margin < 0:
-    #     #             required_margin = 0
-    #     #         total_required_margin += required_margin
-
-    #     # if self.portfolio_value > 0:
-    #     #     self.current_risk = min(total_required_margin / self.portfolio_value, 1)
-    #     # else:
-    #     #     self.current_risk = 1
-
-    #     # # Adjust step return by current risk
-    #     # if self.current_risk > 0:
-    #     #     risk_adjusted_step_return = log_returns[-1] / self.current_risk
-    #     # else:
-    #     #     risk_adjusted_step_return = log_returns[-1]
-
-    #     # self.risk_adjusted_step = risk_adjusted_step_return
-
-    #     # penalty = 0
-    #     # if max_dd > self.previous_max_dd:
-    #     #     penalty -= max_dd
-    #     # self.previous_max_dd = max_dd
-
-    #     # # Update compounded returns
-    #     # self.compounded_returns *= 1 + returns[-1]
-    #     # final_compounded_return = self.compounded_returns - 1
-
-    #     # end_episode_comp_return = 0
-    #     # if (self.current_step + 1) >= (self.start_idx + self.episode_length):
-    #     #     end_episode_comp_return = final_compounded_return
-
-    #     # # If you track leverage in a multi-asset scenario, self.previous_leverage may need updating for multiple assets.
-    #     # # For simplicity, assume self.previous_leverage is updated elsewhere as an average or last used leverage.
-    #     # leverage_factor = 0.001 * self.previous_leverage
-    #     # leverage_bonus = 0
-    #     # if log_returns[-1] > leverage_factor:
-    #     #     leverage_bonus = self.previous_leverage * 0.01
-
-    #     #### Original Sharpe ratio
-    #     # if (self.current_step + 1) >= (self.start_idx + self.episode_length):
-    #     #     mean_returns = np.mean(returns)
-    #     #     std_returns = np.std(returns)
-    #     #     risk_free_rate = 0.005 / (365 * 24)
-    #     #     sharpe_ratio = (
-    #     #         (mean_returns - risk_free_rate) / std_returns if std_returns != 0 else 0
-    #     #     )
-    #     # else:
-    #     #     sharpe_ratio = 0
-
-    #     # #### Original Min Variance
-    #     # # Parameters
-    #     # rolling_window = 10  # Adjustable window size for rolling std
-    #     # alpha = 0.05  # Weight for log returns in step-wise reward
-    #     # lambda_ = 0.1  # Weight for rolling std penalty in step-wise reward
-    #     # beta = 1.0  # Weight for intermediate std penalty at truncation points
-    #     # gamma = 2.0  # Weight for final std penalty at the end of the full episode
-
-    #     # # Total_steps is the total number of steps in the full episode
-    #     # total_steps = self.episode_length
-    #     # # Reward calculation
-    #     # if (self.current_step + 1) >= (self.start_idx + self.episode_length):
-    #     #     # End of the full episode
-    #     #     std_returns = np.std(
-    #     #         returns
-    #     #     )  # Standard deviation of returns over the full episode
-    #     #     reward = -std_returns * gamma  # Final penalty with higher weight
-    #     # if (self.current_step + 1) % 120 == 0:
-    #     #     # End of a truncated episode (every 120 steps)
-    #     #     std_returns_so_far = np.std(returns)  # Std of returns accumulated so far
-    #     #     scaling_factor = (
-    #     #         self.current_step + 1
-    #     #     ) / total_steps  # Scales penalty by progress
-    #     #     reward = -std_returns_so_far * beta * scaling_factor  # Intermediate penalty
-    #     # else:
-    #     #     # # In between steps
-    #     #     # rolling_std = (
-    #     #     #     np.std(returns[-rolling_window:])
-    #     #     #     if len(returns) >= rolling_window
-    #     #     #     else 0
-    #     #     # )
-    #     #     # reward = (log_returns[-1] * alpha) - (
-    #     #     #     rolling_std * lambda_
-    #     #     # )  # Step-wise reward
-    #     #     reward = log_returns[-1] * alpha
-    #     #     # reward = 0
-
-    #     # Rolling min variance
-    #     WINDOW_SIZE = min(len(log_returns), 120)
-    #     ROLLING_GMV_FACTOR = WINDOW_SIZE / 120
-
-    #     window_returns = log_returns[-WINDOW_SIZE:]
-    #     rolling_std = np.std(window_returns) if len(window_returns) >= 2 else 0
-
-    #     reward = (log_returns[-1] * 0.1) - (rolling_std * ROLLING_GMV_FACTOR)
-
-    #     # #### Original Sharpe ratio
-    #     # # Parameters
-    #     # alpha = 1.0  # Weight for log returns in step-wise reward
-    #     # beta = 1.0  # Weight for intermediate sharpe ratio at truncation points
-    #     # gamma = 2.0  # Weight for final sharpe ratio at the end of the full episode
-
-    #     # # Total_steps is the total number of steps in the full episode
-    #     # total_steps = self.episode_length
-    #     # # Reward calculation
-    #     # if (self.current_step + 1) >= (self.start_idx + self.episode_length):
-    #     #     # End of the full episode
-    #     #     mean_returns = np.mean(returns)
-    #     #     std_returns = np.std(returns)
-    #     #     risk_free_rate = 0.005 / (365 * 24)
-    #     #     sharpe_ratio = (
-    #     #         (mean_returns - risk_free_rate) / std_returns if std_returns != 0 else 0
-    #     #     )
-    #     #     reward = sharpe_ratio * gamma  # Final penalty with higher weight
-    #     # if (self.current_step + 1) % 120 == 0:
-    #     #     # End of a truncated episode (every 120 steps)
-    #     #     mean_returns = np.mean(returns)
-    #     #     std_returns = np.std(returns)
-    #     #     risk_free_rate = 0.005 / (365 * 24)
-    #     #     sharpe_ratio_so_far = (
-    #     #         (mean_returns - risk_free_rate) / std_returns if std_returns != 0 else 0
-    #     #     )
-    #     #     scaling_factor = (
-    #     #         self.current_step + 1
-    #     #     ) / total_steps  # Scales penalty by progress
-    #     #     reward = sharpe_ratio_so_far * beta * scaling_factor  # Intermediate penalty
-    #     # else:
-    #     #     # In between steps
-    #     #     # rolling_std = (
-    #     #     #     np.std(returns[-rolling_window:])
-    #     #     #     if len(returns) >= rolling_window
-    #     #     #     else 0
-    #     #     # )
-    #     #     # reward = (log_returns[-1] * alpha) - (
-    #     #     #     rolling_std * lambda_
-    #     #     # )  # Step-wise reward
-    #     #     reward = log_returns[-1] * alpha
-
-    #     # reward = (
-    #     #     log_returns[-1]
-    #     #     # - (std_returns * 1.0)
-    #     #     # sharpe_ratio
-    #     #     # log_returns[-1]
-    #     #     # + self.risk_adjusted_step * 0.5
-    #     #     # + rolling_sharpe * ROLLING_SHARPE_FACTOR
-    #     #     # + end_episode_comp_return * 3
-    #     #     # + leverage_bonus
-    #     # )
-
-    #     return reward
 
     def log_step_metrics(self):
         if self.limit_bounds and self.positions:
