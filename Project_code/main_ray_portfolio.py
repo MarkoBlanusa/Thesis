@@ -46,13 +46,13 @@ if __name__ == "__main__":
 
     # Define paths to datasets
     train_data_path = os.path.abspath(
-        "data/train_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17_stage3"
+        "data/train_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17"
     )
     val_data_path = os.path.abspath(
-        "data/val_portfolio_data_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17_stage3"
+        "data/val_portfolio_data_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17"
     )
     test_data_path = os.path.abspath(
-        "data/test_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17_stage3"
+        "data/test_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17"
     )
 
     train_raw_path = os.path.abspath("data/train_raw_ohlcv_100_1d_NewVal2.npy")
@@ -73,12 +73,12 @@ if __name__ == "__main__":
 
     entropy_coeff_schedule = [
         [0, 0.01],  # start very exploratory
-        [5.2e6, 0.005],  # after ~1 M env steps
-        [6.2e6, 0.002],  # match LR/KL decay
+        [1e6, 0.005],  # after ~1 M env steps
+        [3e6, 0.002],  # match LR/KL decay
     ]
 
-    with open(f"env_state_{274}.json") as f:
-        states_ = json.load(f)
+    # with open(f"env_state_{274}.json") as f:
+    #     states_ = json.load(f)
 
     # Configuration using PPOConfig
     config = PPOConfig()
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         env_config={
             "data_path": train_data_path,
             "raw_data_path": train_raw_path,
-            "states": states_,
+            "states": None,
             "mode": "train",
             "leverage": 5,
             "input_length": 100,
@@ -105,7 +105,7 @@ if __name__ == "__main__":
             "margin_mode": "cross",
             "predict_leverage": False,
             "ppo_mode": True,
-            "full_invest": True,
+            "full_invest": False,
         },
     )
     config.framework("torch")
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     config.training(
         gamma=0.97,
         lr=1e-4,
-        lr_schedule=[[0, 1e-4], [6.2e6, 5e-5], [10e6, 2e-5], [15e6, 1e-5]],
+        lr_schedule=[[0, 1e-4], [5e6, 5e-5], [10e6, 2e-5], [15e6, 1e-5]],
         train_batch_size=1680,
         sgd_minibatch_size=280,
         num_sgd_iter=10,
@@ -146,8 +146,8 @@ if __name__ == "__main__":
 
     # --- new evaluation block ---
     config.evaluation(
-        evaluation_interval=10,  # validate every iteration
-        evaluation_duration=5,  # run as long as training step runs
+        evaluation_interval=10,  # validate every 10 iteration
+        evaluation_duration=5,
         evaluation_config={
             "env_config": {
                 "data_path": val_data_path,  # validation split
@@ -162,23 +162,6 @@ if __name__ == "__main__":
         # evaluation_force_reset_envs_before_iteration=True,
     )
 
-    # Add evaluation configuration
-    config.evaluation(
-        evaluation_interval=100,
-        evaluation_duration=10,
-        evaluation_config={
-            "env_config": {
-                "data_path": val_data_path,
-            },
-        },
-    )
-    # Define the stopper
-    stopper = TrialPlateauStopper(
-        metric="evaluation/episode_reward_mean",
-        std=0.01,
-        num_results=10,
-        grace_period=20,
-    )
     # checkpoint_path = r"C:\Users\marko\ray_results\Full_episode_LowLambda_stage3\PPO_trade_env_ray_portfolio_faf88_00000_0_2025-06-03_22-11-48\checkpoint_000273"
 
     results = tune.run(

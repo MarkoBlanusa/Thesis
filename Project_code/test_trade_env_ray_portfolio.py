@@ -130,7 +130,7 @@ class TradingEnvironment(gym.Env):
 
         # Load your dataset
         self.data = read_parquet(
-            "data/test_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17_stage1"
+            "data/test_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17"
         )
 
         self.raw_df = np.load("data/test_raw_ohlcv_100_1d_NewVal2.npy").astype(

@@ -105,13 +105,20 @@ if __name__ == "__main__":
     config.model["_disable_action_flattening"] = True
 
     test_env = gymnasium.make(
-        "trade_env_ray_portfolio", mode="test", input_length=100, seed=42
+        "trade_env_ray_portfolio",
+        mode="test",
+        input_length=100,
+        seed=42,
+        margin_mode="cross",
+        predict_leverage=False,
+        ppo_mode=True,
+        full_invest=False,
     )
     observation_space = test_env.observation_space
     action_space = test_env.action_space
 
     # Define the paths
-    base_dir = r"C:\Users\marko\ray_results\Full_episode_LowLambda_stage1_conditioned\PPO_trade_env_ray_portfolio_c5092_00000_0_2025-06-08_09-39-55\checkpoint_000018"
+    base_dir = r"C:\Users\marko\Marko_documents\Etudes\Master_2ème\2ème_semestre\Thesis\Results_final\PPO\Stage_4\Full_episode_lambda_01_NoConstraint\PPO_trade_env_ray_portfolio_c6aed_00000_0_2025-07-05_02-05-36\checkpoint_000036"
 
     trainer = config.build()
 
@@ -123,7 +130,7 @@ if __name__ == "__main__":
 
     state, _ = test_env.reset()
     with open(
-        f"C:/Users/marko/Marko_documents/Etudes/Master_2ème/2ème_semestre/Thesis/Results_final/PPO/Stage_1/Full_episode_Lambda_01_stage1/saved_states/env_state_{57}.json"
+        f"C:/Users/marko/Marko_documents/Etudes/Master_2ème/2ème_semestre/Thesis/Results_final/PPO/Stage_4/Full_episode_lambda_01_NoConstraint/saved_states/env_state_{111}.json"
     ) as f:
         saved = json.load(f)
     test_env.set_state(saved)

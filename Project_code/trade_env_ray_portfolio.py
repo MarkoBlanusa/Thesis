@@ -88,7 +88,7 @@ class TradingEnvironment(gym.Env):
 
     def __init__(
         self,
-        data_path="data/train_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17_stage1",
+        data_path="data/train_portfolio_dataset_100_1d_normalized_states_add_macro_and_lunarcrush_close_NewVal2_17",
         raw_data_path="data/train_raw_ohlcv_100_1d_NewVal2.npy",
         states=None,
         mode="train",
